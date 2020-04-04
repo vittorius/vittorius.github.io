@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>themes on On software engineering and everything</title>
-    <link>https://vittorius.github.io/tags/themes/</link>
-    <description>On software engineering and everything (themes)</description>
+    <title>css on On software engineering and everything</title>
+    <link>https://vittorius.github.io/tags/css/</link>
+    <description>On software engineering and everything (css)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Mon, 11 Mar 2019 00:00:00 +0000</lastBuildDate>
     
-    <atom:link href="https://vittorius.github.io/tags/themes/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://vittorius.github.io/tags/css/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>

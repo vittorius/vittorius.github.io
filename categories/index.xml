@@ -3,40 +3,13 @@
   <channel>
     <title>Categories on On software engineering and everything</title>
     <link>https://vittorius.github.io/categories/</link>
-    <description>Recent content in Categories on On software engineering and everything</description>
+    <description>On software engineering and everything (Categories)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 17 Jan 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 11 Mar 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://vittorius.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://vittorius.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Development</title>
-      <link>https://vittorius.github.io/categories/development/</link>
-      <pubDate>Thu, 17 Jan 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://vittorius.github.io/categories/development/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>blog</title>
-      <link>https://vittorius.github.io/categories/blog/</link>
-      <pubDate>Mon, 31 Dec 2018 00:00:00 +0000</pubDate>
-      
-      <guid>https://vittorius.github.io/categories/blog/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>golang</title>
-      <link>https://vittorius.github.io/categories/golang/</link>
-      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
-      
-      <guid>https://vittorius.github.io/categories/golang/</guid>
-      <description></description>
-    </item>
     
   </channel>
 </rss>
