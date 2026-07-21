@@ -61,6 +61,17 @@
         <script defer src="{{ get_url(path="js/mathtex-script-type.min.js") }}"></script>
         {%- endif %}
 
+        {# Set the theme class before first paint to avoid a flash of the wrong theme. #}
+        <script>
+            (function () {
+                var stored = localStorage.getItem("theme");
+                var dark = stored
+                    ? stored === "dark"
+                    : window.matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.classList.add(dark ? "dark-mode" : "light-mode");
+            })();
+        </script>
+
         {% block extra_head -%}
         {%- endblock extra_head %}
 
@@ -139,40 +150,25 @@
       </script>
       {%- endif %}
 
-      {# Light/Dark mode toggle buttons #}
-      {#
+      {# Light/Dark mode toggle buttons. The class is already set in <head>; #}
+      {# this only wires up the clicks. #}
       <div class="dark-mode-buttons">
-          <button class="dark-mode-button" id="dark-mode-on"><img src="{{ get_url(path='dark_mode.svg') }}" width="24" height="24" alt="Dark mode" aria-label="dark mode toggle" title="Dark mode"></button>
-          <button class="dark-mode-button" id="dark-mode-off"><img src="{{ get_url(path='light_mode.svg') }}" width="24" height="24" alt="Light mode" aria-label="light mode toggle" title="Light mode"></button>
+          <button class="dark-mode-button" id="dark-mode-on"><img src="{{ get_url(path='dark_mode.svg') }}" width="24" height="24" alt="Dark mode" title="Dark mode"></button>
+          <button class="dark-mode-button" id="dark-mode-off"><img src="{{ get_url(path='light_mode.svg') }}" width="24" height="24" alt="Light mode" title="Light mode"></button>
       </div>
       <script>
-          const cls = document.querySelector("html").classList;
-          const sessionTheme = sessionStorage.getItem("theme");
-
-          function setDark() {
-              cls.add("dark-mode");
-              cls.remove("light-mode");
-              sessionStorage.setItem("theme", "dark");
-          }
-          function setLight() {
-              cls.add("light-mode");
-              cls.remove("dark-mode");
-              sessionStorage.setItem("theme", "light");
+          function setTheme(mode) {
+              const cls = document.documentElement.classList;
+              cls.toggle("dark-mode", mode === "dark");
+              cls.toggle("light-mode", mode !== "dark");
+              localStorage.setItem("theme", mode);
           }
 
-          if (sessionTheme === "dark") {
-              setDark();
-          } else if (sessionTheme === "light") {
-              setLight();
-          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-              setDark();
-          }
-
-          document.getElementById("dark-mode-on").addEventListener("click", function(e) {
-              setDark();
+          document.getElementById("dark-mode-on").addEventListener("click", function () {
+              setTheme("dark");
           });
-          document.getElementById("dark-mode-off").addEventListener("click", function(e) {
-              setLight();
+          document.getElementById("dark-mode-off").addEventListener("click", function () {
+              setTheme("light");
           });
       </script>
       <noscript>
@@ -182,6 +178,5 @@
               }
           </style>
       </noscript>
-      #}
     </body>
 </html>

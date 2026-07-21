@@ -1,0 +1,268 @@
+// Light/dark theming for the Pickles theme.
+//
+// Pickles bakes its palette in at compile time from SCSS variables
+// (themes/zola-pickles/sass/_variables.scss), which cannot be swapped at
+// runtime. This file introduces a CSS custom property layer and re-points
+// every colour-bearing rule at it.
+//
+// Light = Selenized White (identical to the theme's own values)
+// Dark  = Selenized Black
+// Ref: https://github.com/jan-warchol/selenized/blob/master/the-values.md
+//
+// Selectors below are reproduced verbatim from the theme so that specificity
+// matches; this file is imported LAST in style.scss so source order wins.
+
+@mixin light-theme {
+  --bg-0: lab(100% 0 0);
+  --bg-1: lab(93% 0 0);
+  --bg-2: lab(82% 0 0);
+  --dim-0: lab(56% 0 0);
+  --fg-0: lab(30% 0 0);
+  --fg-1: lab(16% 0 0);
+
+  --red: lab(40% 88 56);
+  --green: lab(54% -53 77);
+  --yellow: lab(65% 8 95);
+  --blue: lab(40% 0 -80);
+  --magenta: lab(50% 77 -21);
+  --cyan: lab(61% -56 -6);
+  --orange: lab(51% 52 70);
+  --violet: lab(45% 42 -63);
+
+  --br-red: lab(33% 88 56);
+  --br-green: lab(47% -53 77);
+  --br-yellow: lab(58% 8 95);
+  --br-blue: lab(33% 0 -80);
+  --br-magenta: lab(43% 77 -21);
+  --br-cyan: lab(54% -56 -6);
+  --br-orange: lab(44% 52 70);
+  --br-violet: lab(38% 42 -63);
+
+  // in light mode, offer the moon
+  #dark-mode-on {
+    display: inline;
+  }
+
+  #dark-mode-off {
+    display: none;
+  }
+}
+
+@mixin dark-theme {
+  --bg-0: lab(8% 0 0);
+  --bg-1: lab(15% 0 0);
+  --bg-2: lab(25% 0 0);
+  --dim-0: lab(50% 0 0);
+  --fg-0: lab(75% 0 0);
+  --fg-1: lab(88% 0 0);
+
+  --red: lab(56% 63 40);
+  --green: lab(67% -38 55);
+  --yellow: lab(75% 6 68);
+  --blue: lab(56% 0 -57);
+  --magenta: lab(64% 55 -15);
+  --cyan: lab(72% -40 -4);
+  --orange: lab(64% 37 50);
+  --violet: lab(60% 30 -45);
+
+  --br-red: lab(63% 63 40);
+  --br-green: lab(74% -38 55);
+  --br-yellow: lab(82% 6 68);
+  --br-blue: lab(63% 0 -57);
+  --br-magenta: lab(71% 55 -15);
+  --br-cyan: lab(79% -40 -4);
+  --br-orange: lab(71% 37 50);
+  --br-violet: lab(67% 30 -45);
+
+  // in dark mode, offer the sun
+  #dark-mode-on {
+    display: none;
+  }
+
+  #dark-mode-off {
+    display: inline;
+  }
+}
+
+// Default: follow the OS. This is what a visitor without JS gets.
+:root {
+  @include light-theme;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include dark-theme;
+  }
+}
+
+// Explicit choice, set by the init script in <head>.
+// (0,2,0) outranks the :root rules above, inside media queries too.
+:root.light-mode {
+  @include light-theme;
+}
+
+:root.dark-mode {
+  @include dark-theme;
+}
+
+// --- base.scss ---
+
+body {
+  color: var(--fg-0);
+  // The theme never sets a page background anywhere; without this, dark mode
+  // renders light text on the browser's default white.
+  background-color: var(--bg-0);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--fg-1);
+}
+
+a {
+  color: var(--blue);
+
+  &:hover {
+    color: var(--br-blue);
+  }
+}
+
+table>thead>tr> :is(th, td) {
+  background-color: var(--bg-2);
+  color: var(--fg-1);
+}
+
+table tr {
+  background-color: var(--bg-0);
+}
+
+table tr:nth-child(2n) {
+  background-color: var(--bg-1);
+}
+
+del {
+  color: var(--dim-0);
+}
+
+blockquote {
+  color: var(--dim-0);
+  border-left: 3px solid var(--bg-2);
+}
+
+.toc {
+  border: 1px solid var(--bg-2);
+}
+
+// --- object/component ---
+
+.c-article {
+  &__title {
+    & a {
+      color: var(--fg-1);
+
+      &:hover {
+        color: var(--br-blue);
+      }
+    }
+  }
+
+  &__meta {
+    color: var(--dim-0);
+  }
+
+  &__summary {
+    color: var(--fg-0);
+  }
+}
+
+figure figcaption {
+  color: var(--fg-1);
+}
+
+.c-time {
+  color: var(--dim-0);
+}
+
+.c-tag {
+  color: var(--dim-0);
+
+  &:hover {
+    background: var(--bg-1);
+  }
+}
+
+.c-pagination {
+  a {
+    &:hover {
+      background: var(--bg-1);
+    }
+  }
+}
+
+.zola-anchor {
+  color: var(--dim-0);
+}
+
+// Not rendered by any current template, but zola.toml still defines
+// [extra].links, so keep it themed in case the header links get wired up.
+.c-links {
+  a {
+    border-color: var(--fg-0);
+    color: var(--fg-0);
+
+    &:hover {
+      background: var(--fg-0);
+      color: var(--bg-0);
+    }
+  }
+}
+
+// --- object/project ---
+
+.p-title__link,
+.p-subtitle,
+.p-tag-title {
+  color: var(--fg-0);
+}
+
+.p-menu__parent span {
+  color: var(--blue);
+}
+
+.p-author::before {
+  color: var(--dim-0);
+}
+
+.p-screen-reader-text {
+
+  &:hover,
+  &:active,
+  &:focus {
+    background-color: var(--bg-1);
+    color: var(--blue);
+  }
+}
+
+// --- toggle chrome ---
+
+.dark-mode-buttons {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.dark-mode-button {
+  padding: 0;
+  border: none;
+  line-height: 0;
+  background-color: transparent;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
