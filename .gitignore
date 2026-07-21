@@ -5,4 +5,7 @@
 .claude/worktrees/
 
 # Prettier
-node_modules
+node_modules/
+
+# Zola
+public/
