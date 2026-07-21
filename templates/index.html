@@ -64,7 +64,14 @@
         {# Set the theme class before first paint to avoid a flash of the wrong theme. #}
         <script>
             (function () {
+                var TWELVE_HOURS = 12 * 60 * 60 * 1000;
                 var stored = localStorage.getItem("theme");
+                var savedAt = parseInt(localStorage.getItem("theme_saved_at"), 10);
+                if (stored && (isNaN(savedAt) || Date.now() - savedAt > TWELVE_HOURS)) {
+                    localStorage.removeItem("theme");
+                    localStorage.removeItem("theme_saved_at");
+                    stored = null;
+                }
                 var dark = stored
                     ? stored === "dark"
                     : window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -162,6 +169,7 @@
               cls.toggle("dark-mode", mode === "dark");
               cls.toggle("light-mode", mode !== "dark");
               localStorage.setItem("theme", mode);
+              localStorage.setItem("theme_saved_at", Date.now());
           }
 
           document.getElementById("dark-mode-on").addEventListener("click", function () {

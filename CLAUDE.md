@@ -37,6 +37,8 @@ Consequences for anyone touching colors:
 
 **The toggle itself** lives in `templates/index.html`: an inline script in `<head>` (deliberately *outside* the `extra_head` block, so no child template can drop it) sets `light-mode`/`dark-mode` on `<html>` before first paint to avoid a flash; buttons plus click handlers sit at the end of `<body>`. The choice persists in `localStorage["theme"]` (Hook used `sessionStorage`), falling back to `prefers-color-scheme`. Icons are `static/{dark,light}_mode.svg`, copied from Hook — their hardcoded fills are correct by construction, since the black moon only renders in light mode and the white sun only in dark.
 
+**The saved choice expires after 12 hours.** `setTheme` also writes `localStorage["theme_saved_at"] = Date.now()`, and the head script clears both keys (reverting to `prefers-color-scheme`) when `theme_saved_at` is missing or older than 12h. Every explicit toggle refreshes the timestamp, so only 12h of inactivity resets the choice; a legacy `theme` value with no timestamp is treated as stale and cleared on first load. The check lives in the pre-paint head script so the revert applies before first paint (no flash).
+
 **Code blocks do not follow the toggle.** `zola.toml`'s `[markdown.highlighting] theme = "gruvbox-dark-soft"` bakes colors into inline `style` attributes, so they stay dark in both modes; this was a deliberate scope cut. Making them adaptive needs class-based highlighting and two generated stylesheets that share class names with no scoping. Also unverified: whether `[markdown.highlighting] theme` is even a valid Zola 0.22 key (classic Zola used `[markdown] highlight_theme`) — if it is silently ignored, code blocks aren't highlighted at all today.
 
 ## Architecture: how the theme is overridden
