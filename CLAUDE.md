@@ -18,7 +18,7 @@ There is no test suite, package manager, or lint step — Zola is the only toolc
 
 ## Architecture: the light/dark theming layer
 
-The site was migrated from the [Hook](https://github.com/InputUsername/zola-hook) theme to [Pickles](https://github.com/lukehsiao/zola-pickles), and Hook's light/dark toggle was ported. `themes/hook/` stays in the repo purely as the reference implementation.
+The site was migrated from the [Hook](https://github.com/InputUsername/zola-hook) theme to [Pickles](https://github.com/lukehsiao/zola-pickles), and Hook's light/dark toggle was ported. The `themes/hook` submodule has since been removed; only its ported light/dark logic remains, referenced below for historical context.
 
 **Why `sass/_theme.scss` exists.** Pickles has no CSS-variable layer — it styles everything from compile-time SCSS variables in `themes/zola-pickles/sass/_variables.scss` (Selenized White, `lab()` colors like `$bg_0`, `$fg_0`, `$blue`), which bake into the output CSS and cannot be swapped at runtime. Those variables also **cannot be shadowed**: `themes/zola-pickles/sass/base.scss` opens with `@import "variables"`, which Sass resolves relative to the theme dir, so any earlier redefinition is overwritten before a rule is emitted.
 
@@ -72,7 +72,7 @@ Also orphaned: `sass/overrides/themes/zola-pickles/object/component/_pagination.
 
 ## Repo gotchas
 
-- **`themes/zola-pickles/` is untracked and uncommitted** — a plain `git clone`, not a submodule. `.gitmodules` still declares only the *old* `themes/hook` submodule. A fresh checkout will not have the active theme.
+- **`themes/zola-pickles/` is a git submodule** (`.gitmodules` points at `https://github.com/lukehsiao/zola-pickles.git`). Run `git submodule update --init` after a fresh checkout to populate it. The old `themes/hook` submodule has been removed.
 - **`public/` is committed to git** with no `.gitignore`, but it currently contains only compiled CSS/JS/fonts — **no HTML**. It is not a deployable build. There is no CI workflow in the repo; an `origin/gh-pages` branch exists. Confirm the intended publishing path before treating a `public/` commit as a deploy.
 - `zola.toml` still defines `[extra].links` (Email/GitHub/LinkedIn). That was consumed by Hook's header; **Pickles ignores it**, so those links currently render nowhere.
 - `templates/index.html:54` guards the Atom feed link with `config.generate_feed` (singular), while `zola.toml` sets `generate_feeds` (plural, the correct Zola 0.19+ key). The feed `<link>` therefore never renders.
