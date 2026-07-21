@@ -1,0 +1,5 @@
+# Claude Code — personal/local config, not shared with the team
+.claude/settings.local.json
+.claude/*.local.json
+.claude/*.local.*
+.claude/worktrees/
