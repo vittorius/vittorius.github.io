@@ -3,3 +3,6 @@
 .claude/*.local.json
 .claude/*.local.*
 .claude/worktrees/
+
+# Prettier
+node_modules

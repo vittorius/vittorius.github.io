@@ -7,4 +7,19 @@
     "Tera (HTML)": ["html"],
   },
   "tab_size": 2,
+  "languages": {
+    "Markdown": {
+      "formatter": [
+        {
+          "code_action": "source.fixAll.eslint",
+        },
+        {
+          "external": {
+            "command": "./node_modules/.bin/prettier",
+            "arguments": ["--stdin-filepath", "{buffer_path}"],
+          },
+        },
+      ],
+    },
+  },
 }
