@@ -64,10 +64,10 @@
         {# Set the theme class before first paint to avoid a flash of the wrong theme. #}
         <script>
             (function () {
-                var TWELVE_HOURS = 12 * 60 * 60 * 1000;
+                var SIX_HOURS = 6 * 60 * 60 * 1000;
                 var stored = localStorage.getItem("theme");
                 var savedAt = parseInt(localStorage.getItem("theme_saved_at"), 10);
-                if (stored && (isNaN(savedAt) || Date.now() - savedAt > TWELVE_HOURS)) {
+                if (stored && (isNaN(savedAt) || Date.now() - savedAt > SIX_HOURS)) {
                     localStorage.removeItem("theme");
                     localStorage.removeItem("theme_saved_at");
                     stored = null;
