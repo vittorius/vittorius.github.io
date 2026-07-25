@@ -1,0 +1,9 @@
+{% extends "zola-pickles/templates/page.html" %}
+
+{% block header_nav -%}
+{% if page.components and page.components[0] == "pages" -%}
+{% include "partials/standalone_page_header.html" %}
+{% else -%}
+{% include "partials/header_menu.html" %}
+{%- endif %}
+{%- endblock header_nav %}

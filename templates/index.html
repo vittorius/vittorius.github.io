@@ -93,6 +93,9 @@
                 {{ config.extra.subtitle }}
             </p>
             {% endif -%}
+            {% block header_nav -%}
+            {% include "partials/header_menu.html" %}
+            {%- endblock header_nav %}
         </header>
         {%- endblock header %}
 

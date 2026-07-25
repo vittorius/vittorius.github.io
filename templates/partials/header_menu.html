@@ -1,0 +1,9 @@
+{% set pages_section = get_section(path="pages/_index.md") %}
+{% set linked_pages = pages_section.pages | filter(attribute="extra.include_in_header") %}
+{% if linked_pages -%}
+<nav class="c-header-menu">
+    {% for page in linked_pages %}
+    <a href="{{ page.permalink }}">{{ page.title }}</a>
+    {% endfor %}
+</nav>
+{% endif -%}
