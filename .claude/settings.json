@@ -1,0 +1,14 @@
+{
+  "sandbox": {
+    "network": {
+      "allowedDomains": ["github.com", "api.github.com", "*.githubusercontent.com"]
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run watch:*)"
+    ]
+  }
+}
