@@ -1,0 +1,19 @@
+{#-
+    JSON-safe interpolation for the JSON-LD in partials/schema.html.
+
+    Lives in its own file because Tera resolves `self::` against the template
+    being rendered -- for an {% include %}d partial that is the root layout, not
+    the partial -- so a macro defined alongside its callers is not reachable.
+    It has to be imported.
+
+    `j` supplies the surrounding quotes and escapes quotes, backslashes and
+    newlines via json_encode. `| safe` is required or Tera would HTML-escape the
+    JSON's own quotes.
+
+    The `</` -> `<\/` rewrite keeps a literal `</script>` inside a post body
+    (entirely plausible on a software blog) from terminating the script element
+    early. `\/` is a legal JSON string escape that decodes back to `/`, so
+    parsers see the original text. Note Tera does not interpret `\u` escapes in
+    string literals, so the more obvious `<` silently does nothing.
+-#}
+{% macro j(v) %}{{ v | json_encode | replace(from="</", to="<\/") | safe }}{% endmacro j %}

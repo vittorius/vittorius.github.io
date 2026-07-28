@@ -1,0 +1,107 @@
+{#-
+    schema.org JSON-LD. Included at the end of partials/seo.html, so it inherits
+    the `seo_permalink` / `seo_title` / `seo_desc` / `seo_image` variables that
+    partial computed — one page-type detection, two consumers.
+
+    Emitted as an @graph with stable @id anchors (#website, #person) so the
+    Person and WebSite nodes are declared once and merely referenced from each
+    post, which is how search engines reconcile them into a single entity.
+
+    Every interpolated value goes through the `json::j` macro rather than being
+    written into the JSON by hand -- see partials/json_macros.html for why it
+    lives in a separate file and what it escapes.
+-#}
+{%- import "partials/json_macros.html" as json -%}
+
+{%- set site_id = config.base_url ~ "/#website" -%}
+{%- set person_id = config.base_url ~ "/#person" -%}
+
+{#- Profile URLs for the Person's `sameAs`. `me = false` in zola.toml opts an
+    entry out — a mailto: is not a profile. -#}
+{%- set_global seo_sameas = [] -%}
+{%- for link in config.extra.links | default(value=[]) -%}
+    {%- if link.me | default(value=true) -%}
+        {%- set_global seo_sameas = seo_sameas | concat(with=link.href) -%}
+    {%- endif -%}
+{%- endfor -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": {{ json::j(v=site_id) }},
+      "url": {{ json::j(v=config.base_url) }},
+      "name": {{ json::j(v=config.title) }},
+      "description": {{ json::j(v=config.description) }},
+      "inLanguage": {{ json::j(v=config.default_language) }},
+      "publisher": { "@id": {{ json::j(v=person_id) }} }
+    },
+    {
+      "@type": "Person",
+      "@id": {{ json::j(v=person_id) }},
+      "name": {{ json::j(v=config.author) }},
+      "url": {{ json::j(v=config.base_url) }}
+      {%- if seo_sameas | length > 0 -%}
+      ,
+      "sameAs": {{ json::j(v=seo_sameas) }}
+      {%- endif %}
+    }
+    {%- if page is defined %},
+    {
+      {#- BlogPosting only for real posts. A standalone page like /about/ is a
+          WebPage: it has no publication date, no author byline and no place in
+          the blog's article stream. -#}
+      "@type": {% if seo_is_post %}"BlogPosting"{% else %}"WebPage"{% endif %},
+      "@id": {{ json::j(v=seo_permalink) }},
+      "mainEntityOfPage": { "@type": "WebPage", "@id": {{ json::j(v=seo_permalink) }} },
+      "url": {{ json::j(v=seo_permalink) }},
+      "headline": {{ json::j(v=page.title) }},
+      "description": {{ json::j(v=seo_desc) }},
+      "image": [{{ json::j(v=seo_image) }}],
+      {#- Standalone pages carry no date; claiming one would be a lie, and the
+          date filter errors on null anyway. -#}
+      {%- if page.date %}
+      "datePublished": {{ json::j(v=page.date | date(format="%Y-%m-%dT%H:%M:%SZ")) }},
+      "dateModified": {{ json::j(v=page.updated | default(value=page.date) | date(format="%Y-%m-%dT%H:%M:%SZ")) }},
+      {%- endif %}
+      "author": { "@id": {{ json::j(v=person_id) }} },
+      "publisher": { "@id": {{ json::j(v=person_id) }} },
+      "isPartOf": { "@id": {{ json::j(v=site_id) }} },
+      "inLanguage": {{ json::j(v=page.lang | default(value=config.default_language)) }},
+      "wordCount": {{ page.word_count | default(value=0) }}
+      {%- if page.taxonomies.tags -%}
+      ,
+      "keywords": {{ json::j(v=page.taxonomies.tags) }}
+      {%- endif %}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": {{ json::j(v=config.title) }},
+          "item": {{ json::j(v=config.base_url) }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ json::j(v=page.title) }}
+        }
+      ]
+    }
+    {%- elif term is defined %},
+    {
+      "@type": "CollectionPage",
+      "@id": {{ json::j(v=seo_permalink) }},
+      "url": {{ json::j(v=seo_permalink) }},
+      "name": {{ json::j(v=seo_title) }},
+      "description": {{ json::j(v=seo_desc) }},
+      "isPartOf": { "@id": {{ json::j(v=site_id) }} }
+    }
+    {%- endif %}
+  ]
+}
+</script>

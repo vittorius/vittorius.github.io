@@ -17,6 +17,15 @@ compile_sass = true
 # When set to "true", a feed is automatically generated.
 generate_feeds = true
 
+# Atom is the primary feed; rss.xml is emitted from Zola's built-in template for
+# readers that still expect RSS.
+feed_filenames = ["atom.xml", "rss.xml"]
+
+# Keep /page/2/, /page/3/, ... out of sitemap.xml. They are still crawlable and
+# still carry a self-referential canonical; they just aren't advertised as
+# primary content.
+exclude_paginated_pages_in_sitemap = "all"
+
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
 
@@ -43,8 +52,22 @@ theme = "gruvbox-dark-soft"
 
 [extra]
 # Put all your custom variables here
+
+# Rendered in the footer with rel="me", and reused as schema.org `sameAs` in the
+# homepage Person JSON-LD. `me = false` keeps an entry out of both (mailto: is
+# not a profile URL).
 links = [
-    { title = "Email", href = "mailto:post.vittorius@gmail.com" },
+    { title = "Email", href = "mailto:post.vittorius@gmail.com", me = false },
     { title = "GitHub", href = "https://github.com/vittorius" },
     { title = "LinkedIn", href = "https://linkedin.com/in/vittorius" }
 ]
+
+# The single static social share card, served for every page. Must be 1200x630.
+og_image = "og-default.png"
+og_image_alt = "A journey of thousand miles — a blog about software engineering and everything else"
+
+# og:locale. Zola's `default_language` is a bare language code ("en"); Open Graph
+# wants a language_TERRITORY pair.
+locale = "en_US"
+
+copyright = "© 2026 Victor Zagorodny"

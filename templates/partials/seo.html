@@ -1,0 +1,168 @@
+{#-
+    All <head> metadata for every page type on the site.
+
+    Included from the `seo` block in templates/index.html, which is the base
+    layout for *every* template — the theme's page.html, tags/* and categories/*
+    all `{% extends "index.html" %}`, and that name resolves to the root copy.
+    So this one file reaches every URL without any per-template duplication.
+
+    It is the *single* owner of <title>, meta description, Open Graph, Twitter
+    Card, canonical, author and JSON-LD. Nothing else emits them. Splitting
+    those across templates is how the site ended up with `og:url` hardcoded to
+    the base URL on every post.
+
+    Page type is detected from whichever context variable Zola defined:
+
+        paginator  → a paginated list page (/, /page/2/, ...)
+        page       → a post or standalone page
+        term       → a single tag/category page
+        taxonomy   → a tag/category list page
+        section    → a section index
+        (none)     → 404.html, which gets neither current_url nor a context
+
+    Note: no `| safe` on anything interpolated into an attribute. Tera
+    autoescapes .html templates, which is exactly what we want for values that
+    contain quotes or angle brackets.
+-#}
+
+{#- Canonical URL. `current_url` is already the pager page on /page/2/ (verified
+    against a build), which is what pagination must self-canonicalise to --
+    pointing page 2 back at page 1 hides the deeper posts from crawlers. It is
+    undefined only on 404.html, which has no URL of its own to report. -#}
+{%- if current_url is defined -%}
+    {%- set_global seo_is_404 = false -%}
+    {%- set_global seo_permalink = current_url -%}
+{%- else -%}
+    {#- Only 404.html reaches this branch. It gets no canonical at all further
+        down: it stands for every unmatched path, so pointing it at the homepage
+        would tell crawlers the 404 body *is* the homepage. -#}
+    {%- set_global seo_is_404 = true -%}
+    {%- set_global seo_permalink = config.base_url -%}
+{%- endif -%}
+
+{#- Singular label for taxonomy headings: "tags" -> "Tag" / "tag". Both cases are
+    precomputed because Tera cannot apply a filter mid-concatenation --
+    `"x" ~ label | lower ~ "y"` is a parse error, not a lowercase label. -#}
+{%- if taxonomy is defined -%}
+    {%- if taxonomy.name == "tags" -%}
+        {%- set_global seo_tax_label = "Tag" -%}
+        {%- set_global seo_tax_word = "tag" -%}
+    {%- elif taxonomy.name == "categories" -%}
+        {%- set_global seo_tax_label = "Category" -%}
+        {%- set_global seo_tax_word = "category" -%}
+    {%- else -%}
+        {%- set_global seo_tax_label = taxonomy.name | capitalize -%}
+        {%- set_global seo_tax_word = taxonomy.name -%}
+    {%- endif -%}
+{%- endif -%}
+
+{#- Title, description and og:type per page type. -#}
+{#- Standalone pages under content/pages/ are not posts: About is not an article
+    and must not claim a publication date or BlogPosting type. Detected the same
+    way templates/page.html picks its header nav. -#}
+{%- if seo_is_404 -%}
+    {%- set_global seo_type = "website" -%}
+    {%- set_global seo_title = "Page not found | " ~ config.title -%}
+    {%- set_global seo_desc = "That address does not exist on " ~ config.title ~ "." -%}
+
+{%- elif page is defined -%}
+    {#- Written as an if rather than `set_global x = not (a and b)`: Tera only
+        parses arithmetic on the right-hand side of a set, not boolean logic. -#}
+    {%- set_global seo_is_post = true -%}
+    {%- set_global seo_type = "article" -%}
+    {%- if page.components and page.components[0] == "pages" -%}
+        {%- set_global seo_is_post = false -%}
+        {%- set_global seo_type = "website" -%}
+    {%- endif -%}
+    {%- set_global seo_title = page.title ~ " | " ~ config.title -%}
+    {%- if page.description -%}
+        {%- set_global seo_desc = page.description -%}
+    {%- elif page.summary -%}
+        {%- set_global seo_desc = page.summary | linebreaksbr | replace(from="<br>", to=" ") | striptags | trim | truncate(length=160, end="…") -%}
+    {%- else -%}
+        {%- set_global seo_desc = page.content | linebreaksbr | replace(from="<br>", to=" ") | striptags | trim | truncate(length=160, end="…") -%}
+    {%- endif -%}
+
+{%- elif term is defined -%}
+    {%- set_global seo_type = "website" -%}
+    {%- set_global seo_title = seo_tax_label ~ ": " ~ term.name ~ " | " ~ config.title -%}
+    {%- if term.page_count == 1 -%}
+        {%- set_global seo_desc = "1 post filed under " ~ seo_tax_word ~ " “" ~ term.name ~ "” on " ~ config.title ~ "." -%}
+    {%- else -%}
+        {%- set_global seo_desc = term.page_count ~ " posts filed under " ~ seo_tax_word ~ " “" ~ term.name ~ "” on " ~ config.title ~ "." -%}
+    {%- endif -%}
+
+{%- elif taxonomy is defined -%}
+    {%- set_global seo_type = "website" -%}
+    {%- set_global seo_title = "All " ~ taxonomy.name ~ " | " ~ config.title -%}
+    {%- set_global seo_desc = "Browse every " ~ seo_tax_word ~ " used on " ~ config.title ~ "." -%}
+
+{%- elif section is defined and section.title -%}
+    {%- set_global seo_type = "website" -%}
+    {%- set_global seo_title = section.title ~ " | " ~ config.title -%}
+    {%- set_global seo_desc = section.description | default(value=config.description) -%}
+
+{%- else -%}
+    {%- set_global seo_type = "website" -%}
+    {%- set_global seo_title = config.title -%}
+    {%- set_global seo_desc = config.description -%}
+{%- endif -%}
+
+{#- Keep paginated titles distinct so /page/2/ doesn't duplicate the homepage. -#}
+{%- if paginator is defined and paginator.current_index > 1 -%}
+    {%- set_global seo_title = seo_title ~ " (page " ~ paginator.current_index ~ ")" -%}
+{%- endif -%}
+
+{%- set seo_image = get_url(path=config.extra.og_image, trailing_slash=false) -%}
+
+{#- URLs carry `| safe`. Tera's autoescape turns every `/` into `&#x2F;`, which
+    browsers accept in an href but which looks broken in `og:url` and trips
+    less forgiving social scrapers. These values come from Zola, not from user
+    input, so there is nothing to escape. Text values below deliberately do NOT
+    use `| safe` -- a quote in a post title must stay escaped. -#}
+<title>{{ seo_title }}</title>
+{%- if not seo_is_404 %}
+<link rel="canonical" href="{{ seo_permalink | safe }}" />
+{%- endif %}
+<meta name="description" content="{{ seo_desc }}" />
+<meta name="author" content="{{ config.author }}" />
+
+<meta property="og:type" content="{{ seo_type }}" />
+<meta property="og:site_name" content="{{ config.title }}" />
+<meta property="og:title" content="{{ seo_title }}" />
+<meta property="og:description" content="{{ seo_desc }}" />
+<meta property="og:url" content="{{ seo_permalink | safe }}" />
+<meta property="og:locale" content="{{ config.extra.locale }}" />
+<meta property="og:image" content="{{ seo_image | safe }}" />
+<meta property="og:image:alt" content="{{ config.extra.og_image_alt }}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ seo_title }}" />
+<meta name="twitter:description" content="{{ seo_desc | truncate(length=200, end="…") }}" />
+<meta name="twitter:image" content="{{ seo_image | safe }}" />
+<meta name="twitter:image:alt" content="{{ config.extra.og_image_alt }}" />
+
+{%- if page is defined and seo_is_post %}
+<meta property="article:published_time" content="{{ page.date | date(format="%Y-%m-%dT%H:%M:%SZ") }}" />
+{%- if page.updated %}
+<meta property="article:modified_time" content="{{ page.updated | date(format="%Y-%m-%dT%H:%M:%SZ") }}" />
+{%- endif %}
+{%- if page.taxonomies.categories %}
+<meta property="article:section" content="{{ page.taxonomies.categories | first }}" />
+{%- endif %}
+{%- for tag in page.taxonomies.tags | default(value=[]) %}
+<meta property="article:tag" content="{{ tag }}" />
+{%- endfor %}
+{%- endif %}
+
+{#- The theme guarded this with `config.generate_feed` (singular). The correct
+    Zola 0.19+ key is `generate_feeds`, so the feed link never rendered. -#}
+{%- if config.generate_feeds %}
+{%- for feed in config.feed_filenames %}
+<link rel="alternate" type="{% if feed is starting_with("atom") %}application/atom+xml{% else %}application/rss+xml{% endif %}" title="{{ config.title }}" href="{{ get_url(path=feed, trailing_slash=false) | safe }}" />
+{%- endfor %}
+{%- endif %}
+
+{% include "partials/schema.html" %}

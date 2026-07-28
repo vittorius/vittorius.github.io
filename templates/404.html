@@ -1,0 +1,33 @@
+{#-
+    GitHub Pages serves this for any unmatched path. Zola's built-in 404 is a
+    bare, unstyled page with no link back into the site.
+
+    404.html is the one template Zola renders without `current_url` (there is no
+    single URL it stands for), which partials/seo.html already handles by
+    falling back to the site defaults.
+-#}
+{% extends "index.html" %}
+
+{% block extra_head -%}
+{# The only noindex on the site. Every soft-404 URL renders this same body, so #}
+{# letting it be indexed would put an unbounded set of duplicate pages in the  #}
+{# index. `follow` still lets crawlers use the links back into the site.       #}
+<meta name="robots" content="noindex, follow" />
+{%- endblock extra_head %}
+
+{% block content -%}
+<article class="p-article">
+  <header>
+    <h1>Page not found</h1>
+  </header>
+  <section class="p-article__body">
+    <p>
+      There is nothing at this address. It may have moved, or the link that
+      brought you here may be wrong.
+    </p>
+    <p>
+      <a href="{{ config.base_url }}">Back to the homepage</a>
+    </p>
+  </section>
+</article>
+{%- endblock content %}

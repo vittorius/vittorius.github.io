@@ -1,0 +1,28 @@
+{#-
+    Overrides themes/zola-pickles/templates/tags/single.html.
+
+    Two fixes over the theme version:
+
+    1. The term name is the page's <h1>. index.html now demotes the site title
+       to a <p> on taxonomy pages, so without this the page would have no <h1>
+       at all, and previously it competed with one.
+    2. The theme grouped pages by year and then iterated `term.pages` inside the
+       loop instead of `posts`, so every post was listed once per year that had
+       any post in it. categories/single.html got this right; tags did not.
+-#}
+{% extends "index.html" %}
+
+{% block content %}
+<div>
+  <h1>Posts tagged “{{ term.name }}”</h1>
+  {% for year, posts in term.pages | group_by(attribute="year") %}
+  <h2>{{ year }}</h2>
+  {% for page in posts %}
+  <p>
+    <a href="{{ page.permalink | safe }}">{{ page.title }}</a> -
+    <time datetime="{{ page.date }}">{{ page.date | date(format=config.extra.timeformat | default(value="%B %e, %Y")) }}</time>
+  </p>
+  {% endfor %}
+  {% endfor %}
+</div>
+{% endblock content %}

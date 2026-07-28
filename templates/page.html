@@ -1,3 +1,12 @@
+{#-
+    Overrides for the theme's page.html, extended by path so nothing is copied.
+
+    Note the theme's own `title` / `description` blocks are now inert: index.html
+    no longer declares blocks by those names (partials/seo.html owns all head
+    metadata), and Tera silently drops a child block that the parent does not
+    define. That is deliberate -- it is what stops the theme from emitting a
+    second, stale og:title/og:description alongside the partial's.
+-#}
 {% extends "zola-pickles/templates/page.html" %}
 
 {% block header_nav -%}
@@ -7,3 +16,110 @@
 {% include "partials/header_menu.html" %}
 {%- endif %}
 {%- endblock header_nav %}
+
+{#-
+    Redefined wholesale because the theme offers no sub-block to hook into. Two
+    changes from the theme version: a machine-readable `updated` date, and the
+    taxonomy links at the end of the article. Without the latter, /tags/* and
+    /categories/* pages have no inbound links anywhere on the site.
+-#}
+{% block content %}
+<article class="p-article">
+  <header>
+    <h1>{{ page.title | markdown | striptags }}</h1>
+    {#- Standalone pages under content/pages/ carry no date, so they get no
+        byline at all -- a date and a reading time on /about/ are noise, and
+        `page.date | date(...)` would fail outright on a null date. -#}
+    {% if page.date -%}
+    <div>
+      <div class="c-time">
+        <time datetime="{{ page.date | date(format="%Y-%m-%d") }}">
+          {{ page.date | date(format="%F") }}
+        </time>
+        {%- if page.updated and page.updated != page.date %}
+        (updated
+        <time datetime="{{ page.updated | date(format="%Y-%m-%d") }}">{{ page.updated | date(format="%F") }}</time>)
+        {%- endif %}
+        {% if page.extra.author -%}
+        by {{ page.extra.author }}
+        {%- endif %}
+        {{ " - " }}({{ page.reading_time }} min read)
+      </div>
+    </div>
+    {%- endif %}
+  </header>
+  {% if page.toc and page.extra.toc -%}
+  <div class="toc">
+    <strong>Contents</strong>
+    <div>
+      <nav id="TableOfContents">
+        <ul>
+          {% for h1 in page.toc %}
+          <li>
+            <a href="{{ h1.permalink | safe }}">{{ h1.title }}</a>
+            {% if h1.children %}
+            <ul>
+              {% for h2 in h1.children %}
+              <li>
+                <a href="{{ h2.permalink | safe }}">{{ h2.title }}</a>
+                {% if h2.children %}
+                <ul>
+                  {% for h3 in h2.children %}
+                  <li>
+                    <a href="{{ h3.permalink | safe }}">{{ h3.title }}</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+  {%- endif %}
+  <section id="js-article" class="p-article__body">
+    {{ page.content | safe }}
+  </section>
+  <footer>
+    {% if page.taxonomies.categories or page.taxonomies.tags -%}
+    <nav class="p-taxonomies">
+      {% if page.taxonomies.categories -%}
+      <p class="p-taxonomies__categories">
+        Posted in
+        {% for category in page.taxonomies.categories -%}
+        <a href="{{ get_taxonomy_url(kind="categories", name=category) }}">{{ category }}</a>{% if not loop.last %}, {% endif %}
+        {%- endfor %}
+      </p>
+      {%- endif %}
+      {% if page.taxonomies.tags -%}
+      <p class="p-taxonomies__tags">
+        Tagged
+        {% for tag in page.taxonomies.tags -%}
+        <a href="{{ get_taxonomy_url(kind="tags", name=tag) }}" rel="tag">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+        {%- endfor %}
+      </p>
+      {%- endif %}
+    </nav>
+    {%- endif %}
+    <nav class="c-pagination p-pagination">
+      <div class="c-pagination__ctrl">
+        <div class="c-pagination__newer">
+          {% if page.later -%}
+          <a href="{{ page.later.permalink }}">{{ page.later.title }}</a>
+          {%- endif %}
+        </div>
+        <div class="c-pagination__older">
+          {% if page.earlier -%}
+          <a href="{{ page.earlier.permalink }}">{{ page.earlier.title }}</a>
+          {%- endif %}
+        </div>
+      </div>
+    </nav>
+  </footer>
+</article>
+{%- endblock content %}

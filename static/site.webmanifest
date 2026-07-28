@@ -1,0 +1,22 @@
+{
+  "name": "A journey of thousand miles",
+  "short_name": "vittorius",
+  "description": "A blog about software engineering and everything else",
+  "start_url": "/",
+  "display": "minimal-ui",
+  "background_color": "#fbf3db",
+  "theme_color": "#2d5b69",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    }
+  ]
+}

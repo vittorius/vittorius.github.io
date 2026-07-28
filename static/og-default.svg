@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <!--
+    Source of truth for og-default.png, the single share card served for every
+    page (config.extra.og_image). Social scrapers do not render SVG, so the PNG
+    is what actually ships; this file exists to keep the card editable as text.
+    Rasterise after any edit, using the commands in CLAUDE.md.
+
+    Why the canvas is 1200x1200 for a 1200x630 card: the only SVG rasteriser
+    available on this machine is macOS Quick Look (ImageMagick here is built
+    without librsvg and without Freetype, so it cannot draw text at all). Quick
+    Look renders into a square viewport, and it scales a non-square document up
+    and clips it. Given a square document it renders exactly 1:1, so the card is
+    authored in natural 0..630 coordinates inside the translated group below and
+    cropped back out of the square render.
+
+    Palette is Selenized White, matching sass/_theme.scss: bg_0 #fbf3db,
+    fg_0 #53676d, blue #2d5b69.
+
+    Type is a plain system sans stack, not the site's Atkinson Hyperlegible.
+    That font is loaded from Google Fonts at page render time and is not
+    installed locally, so naming it here would silently fall back anyway.
+  -->
+  <rect width="1200" height="1200" fill="#fbf3db"/>
+
+  <g transform="translate(0,285)">
+    <rect width="1200" height="630" fill="#fbf3db"/>
+    <rect width="1200" height="12" fill="#2d5b69"/>
+
+    <!-- The long road: a journey of a thousand miles, kept faint behind the type. -->
+    <path d="M96 500 Q300 470 520 360 T1080 120"
+          fill="none" stroke="#2d5b69" stroke-width="10"
+          stroke-linecap="round" stroke-opacity="0.18"/>
+    <circle cx="96" cy="500" r="13" fill="#2d5b69" fill-opacity="0.18"/>
+
+    <text x="96" y="250" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+          font-size="84" font-weight="700" fill="#2d5b69">A journey of</text>
+    <text x="96" y="344" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+          font-size="84" font-weight="700" fill="#2d5b69">thousand miles</text>
+    <text x="96" y="410" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+          font-size="32" fill="#53676d">A blog about software engineering and everything else</text>
+    <text x="96" y="560" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+          font-size="26" letter-spacing="1.5" fill="#53676d">vittorius.github.io</text>
+  </g>
+</svg>

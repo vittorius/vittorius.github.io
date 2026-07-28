@@ -1,4 +1,9 @@
 {% import "post_macros.html" as post_macros %}
+{% import "partials/json_macros.html" as json %}
+{#- The `json` import is used by partials/schema.html. It has to live here
+    rather than in that partial: Tera resolves macro namespaces against the
+    template being rendered, which for an {% include %}d file is this root
+    layout, not the partial itself. -#}
 
 <!DOCTYPE html>
 <html lang="{{ lang }}">
@@ -9,28 +14,16 @@
         <!-- Enable responsiveness on mobile devices-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
 
-        {% block title -%}
-            {% if config.extra.subtitle %}
-                <title>{{ config.title }} | {{ config.extra.subtitle }}</title>
-            {% else %}
-                <title>{{ config.title }}</title>
-            {% endif %}
-        <meta property="og:title" content="{{ config.title }}" />
-        <meta name="twitter:title" content="{{ config.title }}" />
-        {%- endblock title %}
-
-        {% block description -%}
-        {% if config.description -%}
-        <meta name="description" content="{{ config.description }}">
-        <meta property="og:description" content="{{ config.description }}">
-        <meta name="twitter:description" content="{{ config.description | truncate(length=200) }}">
-        {%- endif %}
-        {%- endblock description %}
-
-        {% block meta -%}
-        <meta property="og:site_name" content="{{ config.title }}" />
-        <meta property="og:url" content="{{ config.base_url }}" />
-        {%- endblock meta %}
+        {# All page metadata -- <title>, description, Open Graph, Twitter Card, #}
+        {# canonical, author and JSON-LD -- lives in this one partial. It       #}
+        {# detects the page type from Zola's context variables, so it covers    #}
+        {# posts, taxonomy pages and pagination without any template            #}
+        {# overriding it. This replaces the theme's separate `title` /          #}
+        {# `description` / `meta` blocks; do not reintroduce them, or per-page   #}
+        {# tags and site-wide defaults will drift apart again.                  #}
+        {% block seo -%}
+        {% include "partials/seo.html" %}
+        {%- endblock seo %}
 
         {% block js -%}
         {% if config.extra.instantpage_enable -%}
@@ -49,11 +42,15 @@
         <link href="{{ get_url(path="fontawesome/solid.css") }}" rel="stylesheet">
         {%- endblock css %}
 
-        <link rel='icon' type='image/x-icon' href="{{ get_url(path="favicon.ico") }}" />
+        {# The theme referenced only favicon.ico, which did not exist -- a 404 on #}
+        {# every page load. All four of these are real files in static/.         #}
+        <link rel="icon" href="{{ get_url(path="favicon.ico", trailing_slash=false) }}" sizes="32x32" />
+        <link rel="icon" href="{{ get_url(path="favicon.svg", trailing_slash=false) }}" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="{{ get_url(path="apple-touch-icon.png", trailing_slash=false) }}" />
+        <link rel="manifest" href="{{ get_url(path="site.webmanifest", trailing_slash=false) }}" />
 
-        {% if config.generate_feed -%}
-        <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ get_url(path="atom.xml") }}">
-        {%- endif %}
+        {# The feed <link> is emitted by partials/seo.html, which also fixes the #}
+        {# `config.generate_feed` (singular) typo that kept it from rendering.   #}
 
         {% if config.extra.katex_enable -%}
         <link rel="stylesheet" href="{{ get_url(path="css/katex.min.css") }}">
@@ -87,7 +84,17 @@
         <a href="#main" class="skip-link p-screen-reader-text">Skip to content</a>
         {% block header -%}
         <header class="l-header">
+            {# The site title is the <h1> only where it *is* the page heading.  #}
+            {# On a post, page.html already emits an <h1> for the post title,   #}
+            {# and two <h1>s per page muddies what the page is actually about.  #}
+            {# The class carries all the styling, so this is visually identical. #}
+            {# `current_url is not defined` is the 404 page, whose own <h1> is   #}
+            {# "Page not found".                                                #}
+            {% if page is defined or term is defined or taxonomy is defined or current_url is not defined -%}
+            <p class="c-title p-title"><a href="{{ config.base_url }}" class="p-title__link">{{ config.title }}</a></p>
+            {% else -%}
             <h1 class="c-title p-title"><a href="{{ config.base_url }}" class="p-title__link">{{ config.title }}</a></h1>
+            {%- endif %}
             {% if config.extra.subtitle -%}
             <p class="p-subtitle">
                 {{ config.extra.subtitle }}

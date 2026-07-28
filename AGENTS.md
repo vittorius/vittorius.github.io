@@ -104,8 +104,20 @@ is a _verbatim copy_ of the theme's `index.html` with local edits. Because the
 theme's `page.html`, `tags/*.html`, and `categories/*.html` all
 `{% extends "index.html" %}`, that resolution lands on the root copy — so
 **`templates/index.html` is the base layout for every page on the site**. Its
-extension points are the blocks `title`, `description`, `meta`, `js`, `css`,
-`extra_head`, `header`, `content`, `webring`, `footer`.
+extension points are the blocks `seo`, `js`, `css`, `extra_head`, `header`,
+`header_nav`, `content`, `webring`, `footer`.
+
+The theme's `title`, `description` and `meta` blocks were **replaced by a single
+`seo` block** — see the SEO section below. A child template that still declares
+`{% block title %}` (the theme's own `page.html` does) is silently dropped by
+Tera, because the parent no longer declares a block by that name.
+
+Not every root template is a copy. `templates/page.html`,
+`templates/tags/single.html` and `templates/categories/single.html` shadow their
+theme counterparts, and `page.html` shows the cheaper idiom:
+`{% extends "zola-pickles/templates/page.html" %}` — Zola registers theme
+templates under their full path as well as their bare name, so you can extend
+the file you are shadowing and override only the blocks you care about.
 
 **Sass — import chain.** `sass/style.scss` compiles to `public/style.css` (the
 only stylesheet the layout links) and is just two imports:
@@ -138,6 +150,74 @@ and the footer-at-bottom fix is incomplete.
 which is the tracked `public/`. Use `zola serve -o <tmpdir>` /
 `zola build -o <tmpdir>` when you don't intend to modify committed files.
 
+## Architecture: the SEO / metadata layer
+
+**One file owns all page metadata.** `templates/partials/seo.html` emits
+`<title>`, the meta description, Open Graph, Twitter Card, `rel=canonical`,
+`meta author`, `article:*` and the feed `<link>`; it ends by including
+`templates/partials/schema.html` for JSON-LD. It is included from the `seo`
+block in `templates/index.html`, which every template inherits — so it reaches
+posts, standalone pages, taxonomy list and term pages, pagination and the 404
+without a single per-template override.
+
+**Do not add metadata anywhere else.** The previous split (theme `index.html`
+holding site-wide defaults, theme `page.html` overriding two of the three
+blocks) is exactly how the site ended up with `og:url` hardcoded to the base URL
+on every post and no canonical anywhere.
+
+Page type is detected from whichever context variable Zola defined:
+
+| Defined | Page type |
+| --- | --- |
+| `page` | post, or standalone page when `page.components[0] == "pages"` |
+| `term` | a tag/category term page |
+| `taxonomy` (no `term`) | a taxonomy list page |
+| `section` with a title | a section index |
+| none / no `current_url` | `404.html` |
+
+`current_url` is the canonical for everything, and it is already the pager URL
+on `/page/2/` (verified against a build) — pagination self-canonicalises rather
+than pointing back at page 1. `404.html` is the one template Zola renders
+without `current_url`; it gets `noindex, follow` and deliberately **no**
+canonical, since it stands for every unmatched path.
+
+**Tera constraints this layer ran into** (all cost a build failure to discover):
+
+- `self::macro()` inside an `{% include %}`d partial resolves against the
+  _rendering root_, not the partial — so `partials/json_macros.html` is imported
+  in `templates/index.html`, not where it is used.
+- Imports must sit at the very top of a template, before any comment or markup.
+- A filter cannot appear mid-concatenation: `"x" ~ label | lower ~ "y"` is a
+  parse error. Precompute the filtered value into its own variable.
+- `set_global` parses arithmetic but not boolean logic — `set_global x = not (a and b)`
+  fails; use an `{% if %}`.
+- Tera has no `\u` string escape. The `</script>` guard in `json_macros.html`
+  rewrites `</` to `<\/` (a legal JSON escape) instead.
+- Autoescape turns every `/` in a URL into `&#x2F;`. URLs emitted into
+  attributes carry `| safe`; **text values must not**, so a quote in a post
+  title stays escaped.
+
+**Icons and the share card.** `static/favicon.svg` and `static/og-default.svg`
+are the editable sources; the rasterised `favicon.ico`, `apple-touch-icon.png`
+and `og-default.png` are what ship. ImageMagick here is built **without librsvg
+and without Freetype** — it silently drops SVG strokes and cannot draw text at
+all — so rasterising goes through macOS Quick Look, which needs the sandbox
+disabled:
+
+```bash
+cd static
+qlmanage -t -s 512 -o . favicon.svg
+magick favicon.svg.png -resize 180x180 -strip apple-touch-icon.png
+magick favicon.svg.png -define icon:auto-resize=48,32,16 favicon.ico
+qlmanage -t -s 1200 -o . og-default.svg
+magick og-default.svg.png -crop 1200x630+0+285 +repage -strip og-default.png
+rm -f favicon.svg.png og-default.svg.png
+```
+
+`og-default.svg` is authored on a **1200×1200** canvas with the card in a
+translated group at y=285. Quick Look renders a square document 1:1 but scales
+and clips a non-square one, hence the square source and the crop.
+
 ## Content conventions
 
 - **Posts go in the root of `content/`.** Pickles requires this — its
@@ -146,7 +226,20 @@ which is the tracked `public/`. Use `zola serve -o <tmpdir>` /
   `insert_anchor_links`.
 - Filenames carry a date prefix (`2026-07-10-first.md`) but the published date
   comes from the `date` field in the TOML front matter, not the filename.
-- `content/pages/` holds standalone pages (e.g. `about.md`).
+- `content/pages/` holds standalone pages (e.g. `about.md`). Its `_index.md`
+  sets `render = false`: the section is a container, not a destination, but it
+  must exist or `partials/header_menu.html`'s
+  `get_section(path="pages/_index.md")` fails the build. Pages opt into the
+  header nav with `[extra] include_in_header = true`, and **must not set
+  `date`** — Zola's site-wide feed carries every page that has one, so a dated
+  `about.md` shows up as a feed entry. `templates/page.html` renders the
+  date/reading-time byline only when `page.date` is present.
+- **Give every post a front-matter `description`** (≤ ~155 chars). It is what
+  `partials/seo.html` uses for the meta description, `og:description` and the
+  JSON-LD; without it the description falls back to `page.summary` and then to a
+  truncation of the body, which reads poorly in search results.
+- Use `aliases = ["old/path/"]` when a slug changes — Zola emits redirect stubs,
+  so inbound links and accumulated ranking survive.
 - Theme shortcodes available: `figure`, `table`, `katex`, `youtube`, `vimeo`.
   Use `<!-- more -->` to control the summary shown in the post list — otherwise
   the first 280 characters are used.
@@ -157,18 +250,18 @@ which is the tracked `public/`. Use `zola serve -o <tmpdir>` /
   `https://github.com/lukehsiao/zola-pickles.git`). Run
   `git submodule update --init` after a fresh checkout to populate it. The old
   `themes/hook` submodule has been removed.
-- **`public/` is committed to git** with no `.gitignore`, but it currently
-  contains only compiled CSS/JS/fonts — **no HTML**. It is not a deployable
-  build. There is no CI workflow in the repo; an `origin/gh-pages` branch
-  exists. Confirm the intended publishing path before treating a `public/`
-  commit as a deploy.
-- `zola.toml` still defines `[extra].links` (Email/GitHub/LinkedIn). That was
-  consumed by Hook's header; **Pickles ignores it**, so those links currently
-  render nowhere.
-- `templates/index.html:54` guards the Atom feed link with
-  `config.generate_feed` (singular), while `zola.toml` sets `generate_feeds`
-  (plural, the correct Zola 0.19+ key). The feed `<link>` therefore never
-  renders.
+- **`public/` is gitignored** and untracked. Publishing goes through
+  `.github/workflows/deploy.yml`, which builds with `getzola/github-pages` on
+  every push to `gh-pages`; the `deploy` skill force-resets `gh-pages` to `main`
+  to trigger it. `gh-pages` is a **source mirror**, not build output.
+- `zola.toml`'s `[extra].links` (Email/GitHub/LinkedIn) is rendered in the
+  footer with `rel="me"` and reused as the schema.org `Person.sameAs` in
+  `partials/schema.html`. Set `me = false` on an entry to keep it out of both —
+  a `mailto:` is not a profile URL.
+- **Zola generates `robots.txt` and `sitemap.xml` itself**, and the built-in
+  robots.txt already carries a `Sitemap:` line. Do not hand-write either;
+  `exclude_paginated_pages_in_sitemap = "all"` in `zola.toml` is what keeps
+  `/page/N/` out of the sitemap.
 - Tera comments are `{# … #}`, not `<!-- -->`. Commit 5949281 exists
   specifically to fix this; the disabled dark-mode block depends on it.
 - `.zed/settings.json` maps `.html` to the Tera (HTML) language and sets

@@ -1,0 +1,24 @@
+{#-
+    Overrides themes/zola-pickles/templates/categories/single.html, solely to
+    make the term name the page's <h1>. index.html now demotes the site title to
+    a <p> on taxonomy pages, so otherwise this page would have no <h1>.
+
+    The theme's year grouping is correct here (it iterates `posts`); only the
+    tags equivalent had the duplication bug.
+-#}
+{% extends "index.html" %}
+
+{% block content %}
+<div>
+  <h1>Posts in “{{ term.name }}”</h1>
+  {% for year, posts in term.pages | group_by(attribute="year") %}
+  <h2>{{ year }}</h2>
+  {% for page in posts %}
+  <p>
+    <a href="{{ page.permalink | safe }}">{{ page.title }}</a> -
+    <time datetime="{{ page.date }}">{{ page.date | date(format=config.extra.timeformat | default(value="%B %e, %Y")) }}</time>
+  </p>
+  {% endfor %}
+  {% endfor %}
+</div>
+{% endblock content %}

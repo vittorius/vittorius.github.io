@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="A journey of thousand miles">
+  <!--
+    Source of truth for every icon in static/. favicon.ico and
+    apple-touch-icon.png are rasterised from this file; see CLAUDE.md for the
+    ImageMagick commands.
+
+    Colors are the Selenized palette the site theme uses (sass/_theme.scss):
+    #fbf3db is Selenized White bg_0 and #2d5b69 is its blue. Both are literals
+    rather than CSS custom properties, because an icon is fetched outside the
+    page and never sees the stylesheet or the light/dark toggle.
+  -->
+  <rect width="64" height="64" rx="12" fill="#2d5b69"/>
+  <!-- A single footstep-path: the journey of a thousand miles. -->
+  <path d="M16 46 Q26 34 32 32 T48 18"
+        fill="none" stroke="#fbf3db" stroke-width="5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="46" r="5" fill="#fbf3db"/>
+</svg>
