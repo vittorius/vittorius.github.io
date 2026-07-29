@@ -10,3 +10,6 @@ node_modules/
 
 # Zola
 public/
+
+# Dev Containers
+.devcontainer/devcontainer.json.lock
