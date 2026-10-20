@@ -29,7 +29,7 @@ exclude_paginated_pages_in_sitemap = "all"
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
 
-author = "Victor Zagorodny"
+author = "Viktor Zahorodnii"
 
 # The taxonomies to be rendered for the site and their configuration.
 # Example:
@@ -70,4 +70,4 @@ og_image_alt = "A journey of thousand miles — a blog about software engineerin
 # wants a language_TERRITORY pair.
 locale = "en_US"
 
-copyright = "© 2026 Victor Zagorodny"
+copyright = "© 2026 Viktor Zahorodnii"

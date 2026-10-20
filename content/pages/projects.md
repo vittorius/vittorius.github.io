@@ -1,6 +1,6 @@
 +++
 title = "Projects"
-description = "Things Victor Zagorodny has built — side projects, experiments and open source work."
+description = "Things Viktor Zahorodnii has built — side projects, experiments and open source work."
 # No `date` — see the note in about.md.
 
 [extra]
