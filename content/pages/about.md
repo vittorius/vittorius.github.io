@@ -9,7 +9,22 @@ description = "About Viktor Zahorodnii and this blog — software engineering, t
 include_in_header = true
 +++
 
-I'm Victor Zagorodny, a software engineer interested in the craft, the systems we build, and what it means to write code in an age of AI. This blog is where I share thoughts on engineering, lessons learned, and observations about the field.
+I'm Viktor Zahorodnii, a software engineer from Ukraine
+{{ icon(name="flag-ua") }}.
+
+After 10+ years of pleasant web development using Ruby on
+Rails{{ icon(name="ruby") }}{{ icon(name="rails") }}, I've decided to follow my
+heart into the land of programming languages, interpreters, compilers, and
+systems programming.
+
+My main workhorse is Rust{{ icon(name="rust", theme_aware=true) }}. I'm also
+interested in OCaml{{ icon(name="ocaml") }}, less
+Haskell{{ icon(name="haskell") }}, and aspiring systems programming languages,
+especially with the focus on memory safety and performance.
+
+I'm interested in the craft, the systems we build, and what it means to write
+code in an age of AI. This blog is where I share thoughts on engineering,
+lessons learned, and observations about the field.
 
 ## Find me elsewhere
 
