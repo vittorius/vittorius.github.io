@@ -1,0 +1,10 @@
+{#
+  Usage in Markdown: {{ icon(name="rocket", alt="Rocket") }}
+#}
+{%- set path = "static/icons/" ~ name ~ ".svg" -%}
+
+<sub>
+<span class="icon {% if theme_aware %}theme-aware{% endif -%}">
+  {{ load_data(path=path) | safe }}
+</span>
+</sub>

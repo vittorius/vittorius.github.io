@@ -1,3 +1,11 @@
 @import "../themes/zola-pickles/sass/base.scss";
 @import "./overrides/themes/zola-pickles/base.scss";
 @import "theme"; // must stay last: the light/dark layer overrides by source order
+
+// -- SVG icons --
+
+.icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}

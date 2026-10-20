@@ -131,7 +131,7 @@ a {
   }
 }
 
-table>thead>tr> :is(th, td) {
+table > thead > tr > :is(th, td) {
   background-color: var(--bg-2);
   color: var(--fg-1);
 }
@@ -238,7 +238,6 @@ figure figcaption {
 }
 
 .p-screen-reader-text {
-
   &:hover,
   &:active,
   &:focus {
@@ -265,4 +264,16 @@ figure figcaption {
   &:hover {
     cursor: pointer;
   }
+}
+
+// --- SVG icons ---
+
+svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dark-mode .icon.theme-aware {
+  color: white;
 }
