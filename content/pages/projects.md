@@ -5,6 +5,7 @@ description = "Things Viktor Zahorodnii has built — side projects, experiments
 
 [extra]
 include_in_header = true
+header_order = 1
 +++
 
 - {{ icon(name="rust", theme_aware=true) }}[Zed Settings Sync](https://github.com/vittorius/zed-settings-sync/):

@@ -7,6 +7,7 @@ description = "About Viktor Zahorodnii and this blog — software engineering, t
 
 [extra]
 include_in_header = true
+header_order = 2
 +++
 
 I'm Viktor Zahorodnii, a software engineer from Ukraine

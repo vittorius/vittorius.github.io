@@ -13,6 +13,8 @@
 - [x] Add custom pages (e.g. about-me, projects) deployment
 - [x] Replace the `/about/` and `/projects/` stubs with real content — both are
       thin pages that currently say little
+- [x] Replace the "← Home" backlink on standalone pages with the unified
+      "Posts | Projects | About" header menu shown on every page
 - [ ] Switch to short URLs for "about" and "projects" pages (without the
       `/pages/` intermediary)
 - [ ] Verify the site in Google Search Console and Bing Webmaster Tools, and
