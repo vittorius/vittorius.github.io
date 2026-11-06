@@ -21,6 +21,8 @@ header_order = 1
   a simple Claude Code-like harness for an LLM that exhibits the main features
   of an AI coding assistant: agent loop, using skills, running scripts within
   skills, etc.
+- {{ icon(name="rust", theme_aware=true) }}[Lunch voting bot](https://github.com/vittorius/lunch_voting_bot):
+  a simple Telegram bot with several commands and voting functionality
 
 ## Open-source contributions
 
