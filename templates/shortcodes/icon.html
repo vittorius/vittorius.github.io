@@ -1,5 +1,6 @@
 {#
-  Usage in Markdown: {{ icon(name="rocket", alt="Rocket") }}
+  Usage in Markdown: {{ icon(name="rocket") }} or {{ icon(name="rocket", theme_aware=true) }}
+  Theme-awareness means different (adaptive) look when light/dark theme is enabled.
 #}
 {%- set path = "static/icons/" ~ name ~ ".svg" -%}
 
