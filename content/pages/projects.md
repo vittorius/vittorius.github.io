@@ -18,11 +18,11 @@ header_order = 1
   [Crafting Interpreters](https://craftinginterpreters.com/) book by Robert
   Nystrom.
 - {{ icon(name="rust", theme_aware=true) }}["Build your own Claude Code" Challenge](https://github.com/vittorius/codecrafters-claude-code-rust):
-  a simple Claude Code-like harness for an LLM that exhibits the main features
-  of an AI coding assistant: agent loop, using skills, running scripts within
-  skills, etc.
+  a Claude Code-like harness for an LLM that exhibits the main features of an AI
+  coding assistant: agent loop, using skills, running scripts within skills,
+  etc.
 - {{ icon(name="rust", theme_aware=true) }}[Lunch voting bot](https://github.com/vittorius/lunch_voting_bot):
-  a simple Telegram bot with several commands and voting functionality
+  a Telegram bot with several commands and voting functionality
 
 ## Open-source contributions
 
