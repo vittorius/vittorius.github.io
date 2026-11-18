@@ -27,5 +27,5 @@ header_order = 1
 ## Open-source contributions
 
 - {{ icon(name="rust", theme_aware=true) }}[Commit message editor history for Zed](https://github.com/zed-industries/zed/pull/48193):
-  navigatable history in the commit message editor text input similar to what VS
-  Code offers.
+  the history in the commit message editor text input with up/down arrow navigation,
+  similar to what VS Code offers.
